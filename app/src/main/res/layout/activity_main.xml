@@ -44,4 +44,23 @@
         android:text="Tomar Foto Galeria"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/buttonHacerFoto" />
+
+    <Button
+        android:id="@+id/buttonDibujaCirculo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Dibujar Circulo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonGaleria" />
+
+    <Button
+        android:id="@+id/buttonBlancoYNegro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Blanco Y Negro"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonDibujaCirculo" />
 </androidx.constraintlayout.widget.ConstraintLayout>

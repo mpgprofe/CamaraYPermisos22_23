@@ -12,6 +12,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
@@ -34,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int VENGO_DE_LA_CAMARA_CON_CALIDAD = 2;
     private static final int VENGO_DE_LA_GALERIA = 3;
     ImageView imageView;
-    Button buttonHacerFoto, buttonHacerFotoCalidad, buttonGaleria;
+    Button buttonHacerFoto, buttonHacerFotoCalidad, buttonGaleria, buttonDibujaCirculo,buttonBYN;
     File fichero;
 
     @Override
@@ -45,6 +49,37 @@ public class MainActivity extends AppCompatActivity {
         buttonHacerFotoCalidad = findViewById(R.id.buttonHacerFotoCalidad);
         imageView = findViewById(R.id.imageView);
         buttonGaleria = findViewById(R.id.buttonGaleria);
+        buttonDibujaCirculo=findViewById(R.id.buttonDibujaCirculo);
+        buttonBYN = findViewById(R.id.buttonBlancoYNegro);
+
+        buttonBYN.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Bitmap b = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
+                imageView.setImageBitmap( EfectosBitmap.efectoBlackAndWhiteLento(b));
+            }
+        });
+
+        buttonDibujaCirculo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Bitmap b = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+
+                Bitmap copia = b.copy(b.getConfig(), true);
+                Canvas canvas = new Canvas(copia);
+                //Necesito un pincel
+                Paint pincel = new Paint();
+                pincel.setColor(Color.GREEN);
+                pincel.setStrokeWidth(9);
+                pincel.setStyle(Paint.Style.STROKE);
+                //Ahora a puedo dibujar
+                canvas.drawCircle(canvas.getWidth()/2,canvas.getHeight()/2,canvas.getWidth()/2,pincel);
+                imageView.setImageBitmap(copia);
+
+
+
+            }
+        });
 
         buttonHacerFoto.setOnClickListener(new View.OnClickListener() {
             @Override
