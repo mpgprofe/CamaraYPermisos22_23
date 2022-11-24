@@ -14,13 +14,15 @@ import android.graphics.RadialGradient;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
+
+import android.transition.Transition;
 import android.util.SparseArray;
-/*
+
 import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
 import com.google.android.gms.vision.face.Landmark;
-*/
+
 import java.util.Random;
 
 public class EfectosBitmap {
@@ -222,6 +224,81 @@ public class EfectosBitmap {
         source = null;
 
         return bmOut;
+    }
+
+    public static Bitmap buscarCaras(Bitmap original, Bitmap gafas, Context ctx) {
+        Bitmap caras = Bitmap.createBitmap(original.getWidth(), original.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(caras);
+        canvas.drawBitmap(original, 0, 0, null);
+
+        Paint pincel = new Paint();
+        pincel.setColor(Color.GREEN);
+        pincel.setStyle(Paint.Style.STROKE);
+        pincel.setStrokeWidth(10);
+
+        FaceDetector faceDetector = new FaceDetector.Builder(ctx).setProminentFaceOnly(false).
+                setLandmarkType(FaceDetector.ALL_LANDMARKS).
+                setMode(FaceDetector.ACCURATE_MODE).build();
+
+        Frame frame = new Frame.Builder().setBitmap(original).build();
+
+        SparseArray<Face> misCaras = faceDetector.detect(frame);
+
+
+        for (int i = 0; i < misCaras.size(); i++) {
+            Face caraAux = misCaras.valueAt(i);
+
+            Rect rectanguloCara = new Rect((int) caraAux.getPosition().x,
+                    (int) caraAux.getPosition().y,
+                    (int) (caraAux.getPosition().x + caraAux.getWidth()),
+                    (int) (caraAux.getPosition().y + caraAux.getHeight()));
+            canvas.drawRect(rectanguloCara, pincel);
+            boolean tieneojoderecho = false, tieneojoizquierdo = false;
+            for (Landmark landmark : caraAux.getLandmarks()) {
+                //int cx = (int) landmark.getPosition().x;
+                //int cy = (int) landmark.getPosition().y;
+                int xOjoD = 0, yOjoD = 0, xOjoI = 0, yOjoI = 0;
+                if (landmark.getType() == Landmark.LEFT_EYE) {
+                    xOjoI = (int) landmark.getPosition().x;
+                    yOjoI = (int) landmark.getPosition().y;
+                    tieneojoizquierdo = true;
+                }
+                if (landmark.getType() == Landmark.RIGHT_EYE) {
+                    xOjoD = (int) landmark.getPosition().x;
+                    yOjoD = (int) landmark.getPosition().y;
+                    tieneojoderecho = true;
+
+                }
+
+                if (xOjoI > xOjoD) {
+                    int aux = xOjoI;
+                    xOjoI = xOjoD;
+                    xOjoD = aux;
+
+                    aux = yOjoI;
+                    yOjoI = yOjoD;
+                    yOjoD = aux;
+                }
+                if (tieneojoderecho && tieneojoizquierdo) {
+                    int distanciaOjos = Math.abs(xOjoD - xOjoI);
+                    float proporciónGafas = gafas.getWidth() / gafas.getHeight();
+
+                    int anchoGafas = distanciaOjos;
+                    int altoGafas = (int) (anchoGafas * proporciónGafas);
+
+                    Rect rectanguloGafas = new Rect(xOjoI, yOjoI - (altoGafas / 2), xOjoD, yOjoD + (altoGafas / 2));
+
+
+                    canvas.drawBitmap(gafas, new Rect(0, 0, gafas.getWidth(), gafas.getHeight()), rectanguloGafas, null);
+                }
+
+                //canvas.drawCircle(cx,cy, 10, pincel);
+            }
+
+
+        }
+        return caras;
+
     }
 
 }

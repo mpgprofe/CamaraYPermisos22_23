@@ -56,7 +56,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Bitmap b = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
-                imageView.setImageBitmap( EfectosBitmap.efectoBlackAndWhiteLento(b));
+                //imageView.setImageBitmap( EfectosBitmap.efectoBlackAndWhiteLento(b));
+                Bitmap gafas = BitmapFactory.decodeResource(getResources(),R.drawable.ojos);
+                imageView.setImageBitmap( EfectosBitmap.buscarCaras(b,gafas, getApplicationContext()));
             }
         });
 
