@@ -16,6 +16,7 @@ import android.graphics.RectF;
 import android.graphics.Shader;
 
 import android.transition.Transition;
+import android.util.Log;
 import android.util.SparseArray;
 
 import com.google.android.gms.vision.Frame;
@@ -238,7 +239,9 @@ public class EfectosBitmap {
 
         FaceDetector faceDetector = new FaceDetector.Builder(ctx).setProminentFaceOnly(false).
                 setLandmarkType(FaceDetector.ALL_LANDMARKS).
-                setMode(FaceDetector.ACCURATE_MODE).build();
+                setClassificationType(FaceDetector.ALL_LANDMARKS).
+                setMode(FaceDetector.ACCURATE_MODE).
+                build();
 
         Frame frame = new Frame.Builder().setBitmap(original).build();
 
@@ -247,17 +250,20 @@ public class EfectosBitmap {
 
         for (int i = 0; i < misCaras.size(); i++) {
             Face caraAux = misCaras.valueAt(i);
+            float rotación = caraAux.getEulerX();//*180/(float) Math.PI;
 
+Log.d("CARA", "z:"+caraAux.getEulerZ()+" y:"+caraAux.getEulerY()+" x: "+caraAux.getEulerX()+" r: "+rotación);
             Rect rectanguloCara = new Rect((int) caraAux.getPosition().x,
                     (int) caraAux.getPosition().y,
                     (int) (caraAux.getPosition().x + caraAux.getWidth()),
                     (int) (caraAux.getPosition().y + caraAux.getHeight()));
             canvas.drawRect(rectanguloCara, pincel);
             boolean tieneojoderecho = false, tieneojoizquierdo = false;
+            int xOjoD = 0, yOjoD = 0, xOjoI = 0, yOjoI = 0;
             for (Landmark landmark : caraAux.getLandmarks()) {
                 //int cx = (int) landmark.getPosition().x;
                 //int cy = (int) landmark.getPosition().y;
-                int xOjoD = 0, yOjoD = 0, xOjoI = 0, yOjoI = 0;
+
                 if (landmark.getType() == Landmark.LEFT_EYE) {
                     xOjoI = (int) landmark.getPosition().x;
                     yOjoI = (int) landmark.getPosition().y;
@@ -270,26 +276,33 @@ public class EfectosBitmap {
 
                 }
 
-                if (xOjoI > xOjoD) {
-                    int aux = xOjoI;
-                    xOjoI = xOjoD;
-                    xOjoD = aux;
 
-                    aux = yOjoI;
-                    yOjoI = yOjoD;
-                    yOjoD = aux;
-                }
                 if (tieneojoderecho && tieneojoizquierdo) {
+                    if (xOjoI > xOjoD) {
+                        int aux = xOjoI;
+                        xOjoI = xOjoD;
+                        xOjoD = aux;
+
+                        aux = yOjoI;
+                        yOjoI = yOjoD;
+                        yOjoD = aux;
+                    }
                     int distanciaOjos = Math.abs(xOjoD - xOjoI);
-                    float proporciónGafas = gafas.getWidth() / gafas.getHeight();
+
+                    Matrix matrix = new Matrix();
+                    matrix.setRotate(rotación);
+
+                    Bitmap gafasR = Bitmap.createBitmap(gafas, 0, 0, gafas.getWidth(),
+                            gafas.getHeight(), matrix, true);
 
                     int anchoGafas = distanciaOjos;
+                    float proporciónGafas = gafasR.getWidth() / gafasR.getHeight();
                     int altoGafas = (int) (anchoGafas * proporciónGafas);
 
-                    Rect rectanguloGafas = new Rect(xOjoI, yOjoI - (altoGafas / 2), xOjoD, yOjoD + (altoGafas / 2));
+                    Rect rectanguloGafas = new Rect(xOjoI-(anchoGafas/2), yOjoI - (altoGafas / 2), xOjoD+(anchoGafas/2), yOjoD + (altoGafas / 2));
 
 
-                    canvas.drawBitmap(gafas, new Rect(0, 0, gafas.getWidth(), gafas.getHeight()), rectanguloGafas, null);
+                    canvas.drawBitmap(gafasR, new Rect(0, 0, gafasR.getWidth(), gafasR.getHeight()), rectanguloGafas, null);
                 }
 
                 //canvas.drawCircle(cx,cy, 10, pincel);
